@@ -1,0 +1,9 @@
+builds:
+  - goos:
+      - darwin
+      - linux
+      - freebsd
+      - openbsd
+      - netbsd
+    goarch:
+      - amd64
