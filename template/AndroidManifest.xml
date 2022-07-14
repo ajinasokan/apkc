@@ -1,9 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="{{pkgname}}">
+    package="{{pkgname}}"
+    android:versionCode="1"
+    android:versionName="0.1">
 
     <uses-sdk android:minSdkVersion="21"
           android:targetSdkVersion="27"
-          android:maxSdkVersion="27" />
+          android:maxSdkVersion="31" />
 
     <application android:label="{{appname}}">
 
