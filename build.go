@@ -1,21 +1,33 @@
 package main
 
 import (
+	"archive/zip"
+	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 // build compiles all the source code and bundles into apk file with dependencies
 func build() {
+	useAAB := false
+	if len(os.Args) > 2 && os.Args[2] == "--aab" {
+		useAAB = true
+	}
+
 	prepare()
 	compileRes()
-	bundleRes()
+	bundleRes(useAAB)
 	compileJava()
 	bundleJava()
-	bundleLibs()
-	signAPK()
-	alignAPK()
+	buildBundle(useAAB)
+	if useAAB {
+		buildAAB()
+	} else {
+		signAPK()
+		alignAPK()
+	}
 }
 
 // clean simply deletes the build dir
@@ -38,38 +50,37 @@ func prepare() {
 
 	mustMkdir := func(path string) {
 		// only ignore if error is "already exist"
-		if err := os.Mkdir(path, 0755); err != nil && !os.IsExist(err) {
+		if err := os.MkdirAll(path, 0755); err != nil && !os.IsExist(err) {
 			LogF("build", err)
 		}
 	}
 
-	mustMkdir("build")
-	mustMkdir("build/res")
+	mustMkdir("build/flats")
+	mustMkdir("build/classes")
 }
 
 // compileRes compiles the xml files in res dir
 func compileRes() {
 	res := getFiles("res", "")
-	for _, r := range res {
-		LogI("build", "compiling", r)
-		cmd := exec.Command(aapt2Path, "compile", r, "-o", "build/res/")
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			LogF("build", string(out))
-		}
-	}
-	err := copyFiles("AndroidManifest.xml", "build/AndroidManifest.xml")
+	LogI("build", "compiling resources")
+	args := []string{"compile", "-o", "build/flats/"}
+	args = append(args, res...)
+	cmd := exec.Command(aapt2Path, args...)
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		LogF("build", err)
+		LogF("build", string(out))
 	}
 }
 
 // bundleRes bundles all the flat files into apk and generates R.* id file for java
-func bundleRes() {
+func bundleRes(useAAB bool) {
 	LogI("build", "bundling resources")
 
-	flats := getFiles("build/res", "")
-	args := []string{"link", "-I", androidJar, "--manifest", "build/AndroidManifest.xml", "-o", "build/bundle.apk", "--java", "src"}
+	flats := getFiles("build/flats", ".flat")
+	args := []string{"link", "-I", androidJar, "--manifest", "AndroidManifest.xml", "-o", "build", "--java", "src", "--output-to-dir"}
+	if useAAB {
+		args = append(args, "--proto-format")
+	}
 	args = append(args, flats...)
 	cmd := exec.Command(aapt2Path, args...)
 	out, err := cmd.CombinedOutput()
@@ -85,7 +96,7 @@ func compileJava() {
 	javas := getFiles("src", "")
 	jars := strings.Join(getFiles("jar", "jar"), ":")
 
-	args := []string{"-d", "build", "-classpath", androidJar + ":" + jars}
+	args := []string{"-d", "build/classes", "-classpath", androidJar + ":" + jars}
 	args = append(args, javas...)
 	cmd := exec.Command(javacPath, args...)
 	out, err := cmd.CombinedOutput()
@@ -98,7 +109,7 @@ func compileJava() {
 func bundleJava() {
 	LogI("build", "bundling classes and jars")
 
-	classes := getFiles("build", ".class")
+	classes := getFiles("build/classes", ".class")
 	jars := getFiles("jar", ".jar")
 
 	args := []string{"--lib", androidJar, "--release", "--output", "build"}
@@ -109,37 +120,63 @@ func bundleJava() {
 	if err != nil {
 		LogF("build", string(out), d8Path, args)
 	}
-
-	cmd = exec.Command(aaptPath, "add", "bundle.apk", "classes.dex")
-	cmd.Dir = "build"
-	out, err = cmd.CombinedOutput()
-	if err != nil {
-		LogF("build", string(out))
-	}
 }
 
-// bundleLibs bundles all the native libs in lib/ dir to apk
-func bundleLibs() {
-	LogI("build", "bundling native libs")
-
-	copyFiles("lib", "build/lib")
-
-	files := getFiles("build/lib", "")
-	if len(files) == 0 {
-		LogI("build", "no native libs")
-		return
-	}
-	for i := 0; i < len(files); i++ {
-		files[i] = strings.TrimPrefix(files[i], "build/")
-	}
-
-	args := []string{"add", "bundle.apk"}
-	args = append(args, files...)
-
-	cmd := exec.Command(aaptPath, args...)
-	cmd.Dir = "build"
-	out, err := cmd.CombinedOutput()
+func buildBundle(useAAB bool) {
+	outFile, err := os.Create("build/bundle.zip")
 	if err != nil {
-		LogF("build", string(out))
+		LogF("build", err)
+	}
+	defer outFile.Close()
+
+	w := zip.NewWriter(outFile)
+
+	addFileToZip := func(s, d string) {
+		dst, err := w.Create(d)
+		if err != nil {
+			LogF("build", err)
+		}
+
+		src, err := os.Open(s)
+		if err != nil {
+			LogF("build", err)
+		}
+
+		_, err = io.Copy(dst, src)
+		if err != nil {
+			LogF("build", err)
+		}
+	}
+
+	if useAAB {
+		addFileToZip("build/AndroidManifest.xml", "manifest/AndroidManifest.xml")
+		addFileToZip("build/classes.dex", "dex/classes.dex")
+		addFileToZip("build/resources.pb", "resources.pb")
+	} else {
+		addFileToZip("build/AndroidManifest.xml", "AndroidManifest.xml")
+		addFileToZip("build/classes.dex", "classes.dex")
+		addFileToZip("build/resources.arsc", "resources.arsc")
+	}
+
+	files := getFiles("build/res", "")
+	for _, f := range files {
+		r, err := filepath.Rel("build", f)
+		if err != nil {
+			LogF("build", err)
+		}
+		addFileToZip(f, r)
+	}
+
+	files = getFiles("lib", "")
+	if len(files) > 0 {
+		LogI("build", "bundling native libs")
+	}
+	for _, f := range files {
+		addFileToZip(f, f)
+	}
+
+	err = w.Close()
+	if err != nil {
+		LogF("build", err)
 	}
 }
