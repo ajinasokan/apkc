@@ -23,7 +23,6 @@ var (
 	sdkPath      string
 	toolsPath    string
 	zipAlignPath string
-	aaptPath     string
 	aapt2Path    string
 	d8Path       string
 	adbPath      string
@@ -44,7 +43,6 @@ func doctor() {
 	LogI("doctor", "jarsigner", jarsignerPath)
 
 	LogI("doctor", "sdk", sdkPath)
-	LogI("doctor", "aapt", aaptPath)
 	LogI("doctor", "aapt2", aapt2Path)
 	LogI("doctor", "d8", d8Path)
 	LogI("doctor", "zipalign", zipAlignPath)
@@ -83,7 +81,6 @@ func findSDKs() {
 			LogE("doctor", err)
 		}
 		toolsPath = filepath.Join(sdkPath, "build-tools", btVersion)
-		aaptPath = filepath.Join(toolsPath, "aapt")
 		aapt2Path = filepath.Join(toolsPath, "aapt2")
 		d8Path = filepath.Join(toolsPath, "d8")
 		zipAlignPath = filepath.Join(toolsPath, "zipalign")
