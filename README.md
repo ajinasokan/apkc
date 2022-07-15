@@ -1,4 +1,4 @@
-**apkc** is a bare-bones Android app build system. It lets you build simple native Android apps without entire Android IDE. It does a subset of what Android Gradle plugin does. This makes it quick and runs with low resources. apkc is mostly suitable for learning purposes.
+**apkc** is a bare-bones Android app build system. It lets you build simple native Android apps in APK or AAB format without entire Android IDE. It does a subset of what Android Gradle plugin does. This makes it quick and runs with low resources. apkc is mostly suitable for learning purposes.
 
 ## Features
 
@@ -36,7 +36,7 @@ Package name (com.myapp): com.ajinasokan.myapp
 App name (My App): Hello World
 ```
 
-5. Build and run in connected device. Logs from app will be streamed after successful run.
+5. Build APK and run in connected device. Logs from app will be streamed after successful run.
 
 ```shell
 $ cd myapp
@@ -65,6 +65,8 @@ $ apkc run
 ....
 ```
 
+To build AAB run `apkc build --aab`. Output file will be at `build/app.{apk/aab}`.
+
 You can add external jar dependencies to `myapp/jar` directory and native libs to `myapp/lib` in appropriate architecture sub directories.
 
 ## Code completion in VSCode
@@ -83,4 +85,4 @@ You can add external jar dependencies to `myapp/jar` directory and native libs t
 
 ## Backstory
 
-apkc was born in 2016 as a bash script for some of [my experiments](https://ajinasokan.com/posts/smallest-app/). It then evolved into a Makefile and was used for production builds of one of [my apps](https://play.google.com/store/apps/details?id=com.innoventionist.artham). Since the Play Store started enforcing AAB files for publishing I had to move away from apkc. This project is a rewrite of the Makefile, without the incremental compilation. AAB support and incremental compilation are in the todo list.
+apkc was born in 2016 as a bash script for some of [my experiments](https://ajinasokan.com/posts/smallest-app/). It then evolved into a Makefile and was used for production builds of one of [my apps](https://play.google.com/store/apps/details?id=com.innoventionist.artham). Since the Play Store started enforcing AAB files for publishing I had to move away from apkc. This project is a rewrite of the Makefile, without the incremental compilation. Incremental compilation is in the todo list.
