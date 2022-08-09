@@ -71,6 +71,8 @@ To build AAB run `apkc build --aab`. Output file will be at `build/app.{apk/aab}
 
 You can add external jar dependencies to `myapp/jar` directory and native libs to `myapp/lib` in appropriate architecture sub directories.
 
+You can add [raw assets](https://developer.android.com/guide/topics/resources/providing-resources#OriginalFiles) to `myapp/assets` directory.
+
 ## Code completion in VSCode
 
 1. Install [Java extension](https://marketplace.visualstudio.com/items?itemName=redhat.java)

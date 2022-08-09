@@ -172,6 +172,14 @@ func buildBundle(useAAB bool) {
 		addFileToZip(f, r)
 	}
 
+	files = getFiles("assets", "")
+	if len(files) > 0 {
+		LogI("build", "bundling assets")
+	}
+	for _, f := range files {
+		addFileToZip(f, f)
+	}
+
 	files = getFiles("lib", "")
 	if len(files) > 0 {
 		LogI("build", "bundling native libs")
