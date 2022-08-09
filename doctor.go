@@ -14,18 +14,18 @@ import (
 
 var (
 	// java sdk paths
-	javaPath      string
-	javaBinPath   string
-	javacPath     string
-	jarsignerPath string
+	javaPath    string
+	javaBinPath string
+	javacPath   string
 
 	// android sdk paths
-	sdkPath      string
-	toolsPath    string
-	zipAlignPath string
-	aapt2Path    string
-	d8Path       string
-	adbPath      string
+	sdkPath       string
+	toolsPath     string
+	zipAlignPath  string
+	aapt2Path     string
+	d8Path        string
+	apksignerPath string
+	adbPath       string
 
 	// android java apis
 	androidJar string
@@ -40,12 +40,12 @@ func doctor() {
 
 	LogI("doctor", "java", javaPath)
 	LogI("doctor", "javac", javacPath)
-	LogI("doctor", "jarsigner", jarsignerPath)
 
 	LogI("doctor", "sdk", sdkPath)
 	LogI("doctor", "aapt2", aapt2Path)
 	LogI("doctor", "d8", d8Path)
 	LogI("doctor", "zipalign", zipAlignPath)
+	LogI("doctor", "apksigner", apksignerPath)
 
 	LogI("doctor", "android jar", androidJar)
 }
@@ -84,6 +84,7 @@ func findSDKs() {
 		aapt2Path = filepath.Join(toolsPath, "aapt2")
 		d8Path = filepath.Join(toolsPath, "d8")
 		zipAlignPath = filepath.Join(toolsPath, "zipalign")
+		apksignerPath = filepath.Join(toolsPath, "apksigner")
 		adbPath = filepath.Join(sdkPath, "platform-tools", "adb")
 		api := strings.Split(btVersion, ".")[0]
 		androidJar = filepath.Join(sdkPath, "platforms", "android-"+api, "android.jar")
@@ -93,12 +94,10 @@ func findSDKs() {
 	if javaPath != "" {
 		javaBinPath = filepath.Join(javaPath, "bin")
 		javacPath = filepath.Join(javaBinPath, "javac")
-		jarsignerPath = filepath.Join(javaBinPath, "jarsigner")
 	} else {
 		LogW("doctor", "JAVA_HOME was not found in environment")
 		// hope the bin is in path
 		javacPath = "javac"
-		jarsignerPath = "jarsigner"
 	}
 }
 

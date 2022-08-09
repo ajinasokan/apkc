@@ -30,8 +30,8 @@ func build() {
 	if *useAAB {
 		buildAAB()
 	} else {
-		signAPK(keyStore, storePass, keyAlias)
 		alignAPK()
+		signAPK(keyStore, storePass, keyAlias)
 	}
 }
 

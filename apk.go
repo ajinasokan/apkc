@@ -20,7 +20,7 @@ func alignAPK() {
 func signAPK(keyStore, storePass, keyAlias *string) {
 	LogI("build", "signing app")
 
-	cmd := exec.Command(jarsignerPath, "-verbose", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-storepass", *storePass, "-keystore", *keyStore, filepath.Join("build", "bundle.zip"), *keyAlias)
+	cmd := exec.Command(apksignerPath, "sign", "--ks-pass", "pass:"+*storePass, "--ks", *keyStore, "--ks-key-alias", *keyAlias, filepath.Join("build", "app.apk"))
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		LogF("build", string(out))
