@@ -2,8 +2,8 @@
 
 ## Features
 
-- Base project has zero dependencies. APK is 6 KB.
-- Builds base project in 2 seconds.
+- Base project has zero dependencies. APK is <20 KB.
+- Builds base project in <3 seconds.
 - Can use external JAR libraries.
 - Can use external native shared libs built with C/Go/Rust etc.
 - Code completion can be setup in VSCode or other editors.
