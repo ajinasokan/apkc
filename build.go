@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"flag"
 	"io"
 	"os"
 	"os/exec"
@@ -11,18 +12,17 @@ import (
 
 // build compiles all the source code and bundles into apk file with dependencies
 func build() {
-	useAAB := false
-	if len(os.Args) > 2 && os.Args[2] == "--aab" {
-		useAAB = true
-	}
+	buildCmd := flag.NewFlagSet("build", flag.ExitOnError)
+	useAAB := buildCmd.Bool("aab", false, "build aab instead of apk")
+	buildCmd.Parse(os.Args[2:])
 
 	prepare()
 	compileRes()
-	bundleRes(useAAB)
+	bundleRes(*useAAB)
 	compileJava()
 	bundleJava()
-	buildBundle(useAAB)
-	if useAAB {
+	buildBundle(*useAAB)
+	if *useAAB {
 		buildAAB()
 	} else {
 		signAPK()
