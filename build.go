@@ -55,15 +55,15 @@ func prepare() {
 		}
 	}
 
-	mustMkdir("build/flats")
-	mustMkdir("build/classes")
+	mustMkdir(filepath.Join("build", "flats"))
+	mustMkdir(filepath.Join("build", "classes"))
 }
 
 // compileRes compiles the xml files in res dir
 func compileRes() {
 	res := getFiles("res", "")
 	LogI("build", "compiling resources")
-	args := []string{"compile", "-o", "build/flats/"}
+	args := []string{"compile", "-o", filepath.Join("build", "flats")}
 	args = append(args, res...)
 	cmd := exec.Command(aapt2Path, args...)
 	out, err := cmd.CombinedOutput()
@@ -96,7 +96,7 @@ func compileJava() {
 	javas := getFiles("src", "")
 	jars := strings.Join(getFiles("jar", "jar"), ":")
 
-	args := []string{"-d", "build/classes", "-classpath", androidJar + ":" + jars}
+	args := []string{"-d", filepath.Join("build", "classes"), "-classpath", androidJar + ":" + jars}
 	args = append(args, javas...)
 	cmd := exec.Command(javacPath, args...)
 	out, err := cmd.CombinedOutput()
@@ -109,7 +109,7 @@ func compileJava() {
 func bundleJava() {
 	LogI("build", "bundling classes and jars")
 
-	classes := getFiles("build/classes", ".class")
+	classes := getFiles(filepath.Join("build", "classes"), ".class")
 	jars := getFiles("jar", ".jar")
 
 	args := []string{"--lib", androidJar, "--release", "--output", "build"}
@@ -123,7 +123,7 @@ func bundleJava() {
 }
 
 func buildBundle(useAAB bool) {
-	outFile, err := os.Create("build/bundle.zip")
+	outFile, err := os.Create(filepath.Join("build", "bundle.zip"))
 	if err != nil {
 		LogF("build", err)
 	}
@@ -149,16 +149,16 @@ func buildBundle(useAAB bool) {
 	}
 
 	if useAAB {
-		addFileToZip("build/AndroidManifest.xml", "manifest/AndroidManifest.xml")
-		addFileToZip("build/classes.dex", "dex/classes.dex")
-		addFileToZip("build/resources.pb", "resources.pb")
+		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), filepath.Join("manifest", "AndroidManifest.xml"))
+		addFileToZip(filepath.Join("build", "classes.dex"), filepath.Join("dex", "classes.dex"))
+		addFileToZip(filepath.Join("build", "resources.pb"), "resources.pb")
 	} else {
-		addFileToZip("build/AndroidManifest.xml", "AndroidManifest.xml")
-		addFileToZip("build/classes.dex", "classes.dex")
-		addFileToZip("build/resources.arsc", "resources.arsc")
+		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), "AndroidManifest.xml")
+		addFileToZip(filepath.Join("build", "classes.dex"), "classes.dex")
+		addFileToZip(filepath.Join("build", "resources.arsc"), "resources.arsc")
 	}
 
-	files := getFiles("build/res", "")
+	files := getFiles(filepath.Join("build", "res"), "")
 	for _, f := range files {
 		r, err := filepath.Rel("build", f)
 		if err != nil {
