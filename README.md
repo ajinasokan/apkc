@@ -65,6 +65,8 @@ $ apkc run
 ....
 ```
 
+To build APK with custom key store run `apkc build --keystore "/path/to/keystore.jks" --storepass "password" --keyalias "alias"`.
+
 To build AAB run `apkc build --aab`. Output file will be at `build/app.{apk/aab}`.
 
 You can add external jar dependencies to `myapp/jar` directory and native libs to `myapp/lib` in appropriate architecture sub directories.

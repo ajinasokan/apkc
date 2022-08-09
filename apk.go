@@ -17,10 +17,10 @@ func alignAPK() {
 }
 
 // signAPK signs apk with jarsigner and default debug keys
-func signAPK() {
+func signAPK(keyStore, storePass, keyAlias *string) {
 	LogI("build", "signing app")
 
-	cmd := exec.Command(jarsignerPath, "-verbose", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-storepass", "android", "-keystore", keyStorePath, filepath.Join("build", "bundle.zip"), "androiddebugkey")
+	cmd := exec.Command(jarsignerPath, "-verbose", "-sigalg", "SHA1withRSA", "-digestalg", "SHA1", "-storepass", *storePass, "-keystore", *keyStore, filepath.Join("build", "bundle.zip"), *keyAlias)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		LogF("build", string(out))

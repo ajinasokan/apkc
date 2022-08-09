@@ -13,7 +13,12 @@ import (
 // build compiles all the source code and bundles into apk file with dependencies
 func build() {
 	buildCmd := flag.NewFlagSet("build", flag.ExitOnError)
+
 	useAAB := buildCmd.Bool("aab", false, "build aab instead of apk")
+	keyStore := buildCmd.String("keystore", keyStorePath, "path to keystore")
+	storePass := buildCmd.String("storepass", "android", "keystore password")
+	keyAlias := buildCmd.String("keyalias", "androiddebugkey", "key alias to use")
+
 	buildCmd.Parse(os.Args[2:])
 
 	prepare()
@@ -25,7 +30,7 @@ func build() {
 	if *useAAB {
 		buildAAB()
 	} else {
-		signAPK()
+		signAPK(keyStore, storePass, keyAlias)
 		alignAPK()
 	}
 }
