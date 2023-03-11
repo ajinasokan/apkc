@@ -5,5 +5,7 @@ builds:
       - freebsd
       - openbsd
       - netbsd
+      - windows
     goarch:
       - amd64
+      - arm64
