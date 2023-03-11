@@ -4,15 +4,16 @@
     android:versionName="0.1">
 
     <uses-sdk android:minSdkVersion="21"
-          android:targetSdkVersion="27"
-          android:maxSdkVersion="31" />
+          android:targetSdkVersion="33"
+          android:maxSdkVersion="33" />
 
     <application android:label="{{appname}}">
 
         <activity
             android:theme="@style/AppTheme"
             android:name=".MainActivity"
-            android:label="{{appname}}" >
+            android:label="{{appname}}"
+            android:exported="true" >
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
