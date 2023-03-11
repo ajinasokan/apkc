@@ -14,6 +14,8 @@ func alignAPK() {
 	if err != nil {
 		LogF("build", string(out))
 	}
+
+	// verify with: zipalign -c -v 4 build/app.apk
 }
 
 // signAPK signs apk with jarsigner and default debug keys

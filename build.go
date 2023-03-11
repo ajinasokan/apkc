@@ -136,8 +136,16 @@ func buildBundle(useAAB bool) {
 
 	w := zip.NewWriter(outFile)
 
-	addFileToZip := func(s, d string) {
-		dst, err := w.Create(d)
+	addFileToZip := func(s, d string, compress bool) {
+		var dst io.Writer
+		if compress {
+			dst, err = w.Create(d)
+		} else {
+			dst, err = w.CreateHeader(&zip.FileHeader{
+				Name:   d,
+				Method: zip.Store,
+			})
+		}
 		if err != nil {
 			LogF("build", err)
 		}
@@ -154,13 +162,13 @@ func buildBundle(useAAB bool) {
 	}
 
 	if useAAB {
-		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), filepath.Join("manifest", "AndroidManifest.xml"))
-		addFileToZip(filepath.Join("build", "classes.dex"), filepath.Join("dex", "classes.dex"))
-		addFileToZip(filepath.Join("build", "resources.pb"), "resources.pb")
+		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), filepath.Join("manifest", "AndroidManifest.xml"), true)
+		addFileToZip(filepath.Join("build", "classes.dex"), filepath.Join("dex", "classes.dex"), true)
+		addFileToZip(filepath.Join("build", "resources.pb"), "resources.pb", true)
 	} else {
-		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), "AndroidManifest.xml")
-		addFileToZip(filepath.Join("build", "classes.dex"), "classes.dex")
-		addFileToZip(filepath.Join("build", "resources.arsc"), "resources.arsc")
+		addFileToZip(filepath.Join("build", "AndroidManifest.xml"), "AndroidManifest.xml", true)
+		addFileToZip(filepath.Join("build", "classes.dex"), "classes.dex", true)
+		addFileToZip(filepath.Join("build", "resources.arsc"), "resources.arsc", false)
 	}
 
 	files := getFiles(filepath.Join("build", "res"), "")
@@ -169,7 +177,7 @@ func buildBundle(useAAB bool) {
 		if err != nil {
 			LogF("build", err)
 		}
-		addFileToZip(f, r)
+		addFileToZip(f, r, true)
 	}
 
 	files = getFiles("assets", "")
@@ -177,7 +185,7 @@ func buildBundle(useAAB bool) {
 		LogI("build", "bundling assets")
 	}
 	for _, f := range files {
-		addFileToZip(f, f)
+		addFileToZip(f, f, true)
 	}
 
 	files = getFiles("lib", "")
@@ -185,7 +193,7 @@ func buildBundle(useAAB bool) {
 		LogI("build", "bundling native libs")
 	}
 	for _, f := range files {
-		addFileToZip(f, f)
+		addFileToZip(f, f, true)
 	}
 
 	err = w.Close()
