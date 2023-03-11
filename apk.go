@@ -18,7 +18,7 @@ func alignAPK() {
 	// verify with: zipalign -c -v 4 build/app.apk
 }
 
-// signAPK signs apk with jarsigner and default debug keys
+// signAPK signs apk with apksigner and provided debug keys
 func signAPK(keyStore, storePass, keyAlias *string) {
 	LogI("build", "signing app")
 

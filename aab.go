@@ -5,7 +5,7 @@ import (
 )
 
 func buildAAB() {
-	cmd := exec.Command("bundletool", "build-bundle", "--modules=bundle.zip", "--output=app.aab")
+	cmd := exec.Command("bundletool", "build-bundle", "--overwrite", "--modules=bundle.zip", "--output=app.aab")
 	if cmd.Err != nil {
 		LogF("build", cmd.Err)
 	}
