@@ -18,6 +18,9 @@ var (
 	javaBinPath string
 	javacPath   string
 
+	// kotlin sdk paths
+	kotlincPath   string
+
 	// android sdk paths
 	sdkPath       string
 	toolsPath     string
@@ -40,6 +43,8 @@ func doctor() {
 
 	LogI("doctor", "java", javaPath)
 	LogI("doctor", "javac", javacPath)
+
+	LogI("doctor", "kotlinc", kotlincPath)
 
 	LogI("doctor", "sdk", sdkPath)
 	LogI("doctor", "aapt2", aapt2Path)
@@ -99,6 +104,8 @@ func findSDKs() {
 		// hope the bin is in path
 		javacPath = "javac"
 	}
+
+	kotlincPath = "kotlinc"
 }
 
 // latestBuildTools checks the available build tools and picks the most recent one
