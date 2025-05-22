@@ -18,6 +18,7 @@ func build() {
 	keyStore := buildCmd.String("keystore", keyStorePath, "path to keystore")
 	storePass := buildCmd.String("storepass", "android", "keystore password")
 	keyAlias := buildCmd.String("keyalias", "androiddebugkey", "key alias to use")
+	sigAlg := buildCmd.String("sigalg", "SHA256withRSA", "signature to use")
 
 	buildCmd.Parse(os.Args[2:])
 
@@ -30,6 +31,7 @@ func build() {
 	buildBundle(*useAAB)
 	if *useAAB {
 		buildAAB()
+		signAAB(keyStore, storePass, keyAlias, sigAlg)
 	} else {
 		alignAPK()
 		signAPK(keyStore, storePass, keyAlias)
