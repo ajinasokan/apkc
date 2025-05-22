@@ -24,6 +24,7 @@ func build() {
 	prepare()
 	compileRes()
 	bundleRes(*useAAB)
+	compileKotlin()
 	compileJava()
 	bundleJava()
 	buildBundle(*useAAB)
@@ -94,14 +95,33 @@ func bundleRes(useAAB bool) {
 	}
 }
 
+func compileKotlin() {
+	kotlins := getFiles("src", "kt")
+	if len(kotlins) < 1 {
+		return
+	}
+
+	LogI("build", "compiling kotlin files")
+
+	jars := strings.Join(getFiles("jar", "jar"), ":")
+
+	args := []string{"-d", filepath.Join("build", "classes"), "-classpath", androidJar + ":" + jars, "src"}
+	args = append(args, kotlins...)
+	cmd := exec.Command(kotlincPath, args...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		LogF("build", string(out), args)
+	}
+}
+
 // compileJava compiles java files in src dir and uses jar files in the jar dir as classpath
 func compileJava() {
 	LogI("build", "compiling java files")
 
-	javas := getFiles("src", "")
+	javas := getFiles("src", "java")
 	jars := strings.Join(getFiles("jar", "jar"), ":")
 
-	args := []string{"-d", filepath.Join("build", "classes"), "-classpath", androidJar + ":" + jars}
+	args := []string{"-d", filepath.Join("build", "classes"), "-classpath", androidJar + ":" + filepath.Join("build", "classes") + ":" + jars}
 	args = append(args, javas...)
 	cmd := exec.Command(javacPath, args...)
 	out, err := cmd.CombinedOutput()
